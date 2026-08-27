@@ -9,6 +9,7 @@ from classifier import (
 )
 from anomaly_detector import run_anomaly_detection
 from pdf_handler import extract_text_from_pdf
+from link_checker import check_links_in_text
 
 app = FastAPI()
 
@@ -31,6 +32,30 @@ async def create_ticket(
 ):
     attachment_info = None
     image_context = None
+
+    # Check links in the ticket body before anything else
+    link_check = check_links_in_text(body)
+
+    if link_check["any_flagged"]:
+        # Security concern: skip normal AI classification and auto-drafting entirely
+        ticket_id = save_ticket(
+            sender=sender,
+            subject=subject,
+            body=body,
+            category="security_review",
+            summary="Ticket contains a link flagged as malicious or suspicious. Routed for manual review.",
+            draft_reply=""
+        )
+        return {
+            "id": ticket_id,
+            "status": "flagged_for_review",
+            "sender": sender,
+            "category": "security_review",
+            "summary": "Ticket contains a link flagged as malicious or suspicious. Routed for manual review.",
+            "draft_reply": "",
+            "link_check": link_check,
+            "attachment_received": None
+        }
 
     if attachment is not None:
         contents = await attachment.read()
@@ -124,6 +149,7 @@ async def create_ticket(
         "category": result.get("category"),
         "summary": result.get("summary"),
         "draft_reply": result.get("draft_reply"),
+        "link_check": link_check,
         "attachment_received": attachment_info
     }
 
