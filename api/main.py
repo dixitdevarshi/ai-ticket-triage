@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from typing import Optional
+from prometheus_fastapi_instrumentator import Instrumentator
 from database import init_db, save_ticket, get_all_tickets
 from classifier import (
     classify_ticket,
@@ -14,6 +15,8 @@ from link_checker import check_links_in_text
 app = FastAPI()
 
 init_db()
+
+Instrumentator().instrument(app).expose(app)
 
 MAX_PDF_CHARS = 2000
 
@@ -33,11 +36,9 @@ async def create_ticket(
     attachment_info = None
     image_context = None
 
-    # Check links in the ticket body before anything else
     link_check = check_links_in_text(body)
 
     if link_check["any_flagged"]:
-        # Security concern: skip normal AI classification and auto-drafting entirely
         ticket_id = save_ticket(
             sender=sender,
             subject=subject,
