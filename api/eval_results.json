@@ -1,357 +1,508 @@
 {
-  "accuracy_percent": 92.0,
-  "correct": 46,
+  "category_accuracy_percent": 94.0,
+  "urgency_accuracy_percent": 84.0,
+  "both_correct_percent": 78.0,
   "total": 50,
   "results": [
     {
       "id": 1,
       "subject": "Charged twice for my order",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "low",
+      "urgency_correct": false
     },
     {
       "id": 2,
       "subject": "Refund not received",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 3,
       "subject": "Incorrect amount charged",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 4,
       "subject": "Cancel my subscription and refund",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 5,
       "subject": "Invoice missing from my account",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 6,
       "subject": "Upgrade pricing question",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 7,
       "subject": "Payment method declined",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 8,
       "subject": "Currency shown incorrectly",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 9,
       "subject": "Annual plan discount not applied",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 10,
-      "subject": "Do you offer a student discount",
-      "expected": "billing",
-      "predicted": "billing",
-      "correct": true
+      "subject": "Still being billed after cancellation",
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 11,
       "subject": "App crashes on startup",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 12,
       "subject": "Export feature broken",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "medium",
+      "urgency_correct": false
     },
     {
       "id": 13,
       "subject": "Page won't load",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 14,
       "subject": "Search function returns no results",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "medium",
+      "urgency_correct": false
     },
     {
       "id": 15,
       "subject": "Notifications not working",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "medium",
+      "urgency_correct": false
     },
     {
       "id": 16,
       "subject": "Images not uploading",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "medium",
+      "urgency_correct": false
     },
     {
       "id": 17,
       "subject": "Mobile app out of sync with desktop",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 18,
       "subject": "Integration with Slack stopped working",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 19,
       "subject": "Formatting broken after update",
-      "expected": "technical",
-      "predicted": "technical",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "medium",
+      "urgency_correct": false
     },
     {
       "id": 20,
       "subject": "API returning 500 errors",
-      "expected": "technical",
-      "predicted": "urgent",
-      "correct": false
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 21,
       "subject": "Can't log into my account",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 22,
       "subject": "Two factor authentication not sending codes",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 23,
       "subject": "Account locked after failed attempts",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 24,
       "subject": "Lost access after email change",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 25,
       "subject": "Team member can't access shared workspace",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "medium",
+      "urgency_correct": false
     },
     {
       "id": 26,
       "subject": "Password reset email never arrives",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 27,
       "subject": "Session keeps logging me out",
-      "expected": "access",
-      "predicted": "technical",
-      "correct": false
+      "expected_category": "access",
+      "predicted_category": "technical",
+      "category_correct": false,
+      "expected_urgency": "medium",
+      "predicted_urgency": "medium",
+      "urgency_correct": true
     },
     {
       "id": 28,
       "subject": "Can't change my permissions",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "medium",
+      "urgency_correct": false
     },
     {
       "id": 29,
       "subject": "Single sign-on not working",
-      "expected": "access",
-      "predicted": "urgent",
-      "correct": false
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 30,
       "subject": "Forgot username and email",
-      "expected": "access",
-      "predicted": "access",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 31,
       "subject": "Do you offer a student discount",
-      "expected": "general",
-      "predicted": "billing",
-      "correct": false
+      "expected_category": "general",
+      "predicted_category": "billing",
+      "category_correct": false,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 32,
       "subject": "What is your return policy",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 33,
       "subject": "Do you have a mobile app",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 34,
       "subject": "Question about data privacy",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 35,
       "subject": "Do you support multiple languages",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 36,
       "subject": "How do I contact sales",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 37,
       "subject": "General feedback on the new design",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 38,
       "subject": "Do you integrate with Notion",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 39,
       "subject": "What happens to my data if I cancel",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 40,
       "subject": "Looking for API documentation",
-      "expected": "general",
-      "predicted": "general",
-      "correct": true
+      "expected_category": "general",
+      "predicted_category": "general",
+      "category_correct": true,
+      "expected_urgency": "low",
+      "predicted_urgency": "low",
+      "urgency_correct": true
     },
     {
       "id": 41,
       "subject": "Server completely down, losing customers",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 42,
       "subject": "Payment system down for all customers",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "technical",
+      "category_correct": false,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 43,
       "subject": "Data appears to have been deleted",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 44,
       "subject": "Security concern, unauthorized login",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 45,
       "subject": "Entire team locked out during launch",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "access",
+      "predicted_category": "access",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 46,
       "subject": "Critical bug affecting all users",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 47,
       "subject": "Service outage during business hours",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 48,
       "subject": "Duplicate charges hitting hundreds of customers",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "billing",
+      "predicted_category": "billing",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 49,
       "subject": "Production database connection failing",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     },
     {
       "id": 50,
       "subject": "Legal deadline at risk due to platform failure",
-      "expected": "urgent",
-      "predicted": "urgent",
-      "correct": true
+      "expected_category": "technical",
+      "predicted_category": "technical",
+      "category_correct": true,
+      "expected_urgency": "high",
+      "predicted_urgency": "high",
+      "urgency_correct": true
     }
   ]
 }
