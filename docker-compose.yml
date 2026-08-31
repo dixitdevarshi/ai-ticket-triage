@@ -30,7 +30,20 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=ticket_admin
+      - POSTGRES_PASSWORD=ticket_pass_dev
+      - POSTGRES_DB=ticket_triage
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 volumes:
   n8n_data:
   prometheus_data:
   grafana_data:
+  postgres_data:

@@ -4,8 +4,8 @@ from typing import Optional
 import requests
 from dotenv import load_dotenv
 from prometheus_fastapi_instrumentator import Instrumentator
+from db_models import Base, engine
 from database import (
-    init_db,
     save_ticket,
     get_all_tickets,
     get_tickets_needing_review,
@@ -26,7 +26,7 @@ load_dotenv()
 
 app = FastAPI()
 
-init_db()
+Base.metadata.create_all(engine)
 
 Instrumentator().instrument(app).expose(app)
 

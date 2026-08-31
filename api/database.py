@@ -1,95 +1,114 @@
-import sqlite3
+from db_models import SessionLocal, Ticket
 from datetime import datetime
-
-DB_PATH = "tickets.db"
-
-
-def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
 
 
 def init_db():
-    conn = get_connection()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS tickets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sender TEXT,
-            subject TEXT,
-            body TEXT,
-            category TEXT,
-            urgency TEXT,
-            summary TEXT,
-            draft_reply TEXT,
-            confidence TEXT,
-            needs_review INTEGER DEFAULT 0,
-            review_reason TEXT,
-            corrected_category TEXT,
-            corrected_urgency TEXT,
-            reviewed INTEGER DEFAULT 0,
-            created_at TEXT
-        )
-    """)
-    conn.commit()
-    conn.close()
+    # Table creation now happens via db_models.py's Base.metadata.create_all
+    # This function is kept as a no-op so main.py's existing call doesn't break
+    pass
 
 
 def save_ticket(sender, subject, body, category=None, urgency=None, summary=None, draft_reply=None,
                  confidence=None, needs_review=0, review_reason=None):
-    conn = get_connection()
-    cursor = conn.execute(
-        """
-        INSERT INTO tickets (sender, subject, body, category, urgency, summary, draft_reply,
-                              confidence, needs_review, review_reason, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (sender, subject, body, category, urgency, summary, draft_reply,
-         confidence, needs_review, review_reason, datetime.utcnow().isoformat())
-    )
-    conn.commit()
-    ticket_id = cursor.lastrowid
-    conn.close()
-    return ticket_id
+    session = SessionLocal()
+    try:
+        ticket = Ticket(
+            sender=sender,
+            subject=subject,
+            body=body,
+            category=category,
+            urgency=urgency,
+            summary=summary,
+            draft_reply=draft_reply,
+            confidence=confidence,
+            needs_review=needs_review,
+            review_reason=review_reason,
+            created_at=datetime.utcnow()
+        )
+        session.add(ticket)
+        session.commit()
+        session.refresh(ticket)
+        ticket_id = ticket.id
+        return ticket_id
+    finally:
+        session.close()
 
 
 def get_all_tickets():
-    conn = get_connection()
-    rows = conn.execute("SELECT * FROM tickets ORDER BY id DESC").fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+    session = SessionLocal()
+    try:
+        tickets = session.query(Ticket).order_by(Ticket.id.desc()).all()
+        return [ticket_to_dict(t) for t in tickets]
+    finally:
+        session.close()
 
 
 def get_tickets_needing_review():
-    conn = get_connection()
-    rows = conn.execute(
-        "SELECT * FROM tickets WHERE needs_review = 1 AND reviewed = 0 ORDER BY id DESC"
-    ).fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+    session = SessionLocal()
+    try:
+        tickets = (
+            session.query(Ticket)
+            .filter(Ticket.needs_review == 1, Ticket.reviewed == 0)
+            .order_by(Ticket.id.desc())
+            .all()
+        )
+        return [ticket_to_dict(t) for t in tickets]
+    finally:
+        session.close()
 
 
 def submit_correction(ticket_id, corrected_category=None, corrected_urgency=None):
-    conn = get_connection()
-    conn.execute(
-        "UPDATE tickets SET corrected_category = ?, corrected_urgency = ?, reviewed = 1 WHERE id = ?",
-        (corrected_category, corrected_urgency, ticket_id)
-    )
-    conn.commit()
-    conn.close()
+    session = SessionLocal()
+    try:
+        ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
+        if ticket:
+            ticket.corrected_category = corrected_category
+            ticket.corrected_urgency = corrected_urgency
+            ticket.reviewed = 1
+            session.commit()
+    finally:
+        session.close()
 
 
 def get_past_corrections(limit=3):
-    conn = get_connection()
-    rows = conn.execute(
-        """
-        SELECT subject, body, corrected_category, corrected_urgency
-        FROM tickets
-        WHERE reviewed = 1 AND (corrected_category IS NOT NULL OR corrected_urgency IS NOT NULL)
-        ORDER BY id DESC
-        LIMIT ?
-        """,
-        (limit,)
-    ).fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+    session = SessionLocal()
+    try:
+        tickets = (
+            session.query(Ticket)
+            .filter(Ticket.reviewed == 1)
+            .filter((Ticket.corrected_category.isnot(None)) | (Ticket.corrected_urgency.isnot(None)))
+            .order_by(Ticket.id.desc())
+            .limit(limit)
+            .all()
+        )
+        return [
+            {
+                "subject": t.subject,
+                "body": t.body,
+                "corrected_category": t.corrected_category,
+                "corrected_urgency": t.corrected_urgency
+            }
+            for t in tickets
+        ]
+    finally:
+        session.close()
+
+
+def ticket_to_dict(ticket: Ticket) -> dict:
+    return {
+        "id": ticket.id,
+        "sender": ticket.sender,
+        "subject": ticket.subject,
+        "body": ticket.body,
+        "category": ticket.category,
+        "urgency": ticket.urgency,
+        "summary": ticket.summary,
+        "draft_reply": ticket.draft_reply,
+        "confidence": ticket.confidence,
+        "needs_review": ticket.needs_review,
+        "review_reason": ticket.review_reason,
+        "corrected_category": ticket.corrected_category,
+        "corrected_urgency": ticket.corrected_urgency,
+        "reviewed": ticket.reviewed,
+        "created_at": ticket.created_at.isoformat() if ticket.created_at else None
+    }
