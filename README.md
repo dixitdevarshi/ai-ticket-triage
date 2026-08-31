@@ -4,7 +4,7 @@ An automated support ticket triage pipeline combining n8n, the Claude API, and a
 
 ## Architecture
 
-A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, and the workflow branches based on whether an attachment is present, both paths call a FastAPI backend that handles the actual intelligence. Claude classifies the ticket's topic and urgency independently, and if there's an attachment, a separate routing layer decides what kind of file it is and processes it before folding the result back into classification. The ticket is then routed by urgency: high-urgency tickets post an alert to Slack, everything else is logged. Separately, any ticket the model isn't confident about, or a small random sample of confident ones, gets flagged for human review, also via Slack.
+A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, and the workflow branches based on whether an attachment is present, both paths call a FastAPI backend that handles the actual intelligence. Claude classifies the ticket's topic and urgency independently, and if there's an attachment, a separate routing layer decides what kind of file it is and processes it before folding the result back into classification. The ticket is then routed by urgency: high-urgency tickets post an alert to Slack, everything else is logged. Separately, any ticket the model isn't confident about, or a small random sample of confident ones, gets flagged for human review, also via Slack. Everything is persisted in PostgreSQL through a SQLAlchemy model layer.
 
 ![n8n workflow](docs/screenshots/n8n-workflow.png)
 
@@ -68,7 +68,8 @@ Note: classification disagreements in the evaluation above don't appear as error
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)
 ![Anthropic](https://img.shields.io/badge/Claude_API-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
 ![n8n](https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
@@ -81,8 +82,8 @@ Note: classification disagreements in the evaluation above don't appear as error
 
 ## Running it locally
 
-1. `docker compose up -d` — starts n8n, Prometheus, and Grafana
-2. `cd api && uvicorn main:app --reload --port 8000` — starts the FastAPI backend
-3. Set `ANTHROPIC_API_KEY` and `VIRUSTOTAL_API_KEY` in `api/.env`
+1. `docker compose up -d` — starts n8n, Prometheus, Grafana, and PostgreSQL
+2. `cd api && uvicorn main:app --reload --port 8000` — starts the FastAPI backend (tables are created automatically on first run)
+3. Set `ANTHROPIC_API_KEY`, `VIRUSTOTAL_API_KEY`, and `SLACK_WEBHOOK_URL` in `api/.env`
 4. Import the n8n workflow and connect a Gmail account via OAuth
 5. Grafana at `localhost:3000`, Prometheus at `localhost:9090`, n8n at `localhost:5678`, API docs at `localhost:8000/docs`
