@@ -9,19 +9,13 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 
 
 def fix_ligature_artifacts(text: str) -> str:
-    """
-    Some PDFs have their 'f' character (as part of an 'fi' or 'fl' ligature)
-    misread as '6' during extraction. This restores it.
-    """
+    
     text = re.sub(r'6(?=[a-z])', 'f', text)
     return text
 
 
 def ocr_pdf_pages(pdf_bytes: bytes, max_pages: int = 3) -> str:
-    """
-    Renders PDF pages as images and runs OCR on them.
-    Capped at max_pages to keep this fast for a demo.
-    """
+    
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
 
     ocr_text_parts = []
@@ -44,10 +38,7 @@ def ocr_pdf_pages(pdf_bytes: bytes, max_pages: int = 3) -> str:
 
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> dict:
-    """
-    Attempts direct text extraction from a PDF.
-    Falls back to OCR if the PDF appears to be scanned (no extractable text).
-    """
+    
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
 
     full_text = ""

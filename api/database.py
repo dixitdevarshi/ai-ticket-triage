@@ -112,3 +112,4 @@ def ticket_to_dict(ticket: Ticket) -> dict:
         "reviewed": ticket.reviewed,
         "created_at": ticket.created_at.isoformat() if ticket.created_at else None
     }
+ 

@@ -14,18 +14,13 @@ extractor = URLExtract()
 
 
 def extract_urls(text: str) -> list:
-    """
-    Pulls all URLs out of a block of text.
-    """
+    
     urls = extractor.find_urls(text)
     return list(set(urls))  # dedupe
 
 
 def check_url_reputation(url: str) -> dict:
-    """
-    Submits a URL to VirusTotal and returns its reputation.
-    Never fetches or renders the URL itself, only asks VirusTotal about it.
-    """
+    
     url_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
 
     headers = {"x-apikey": VIRUSTOTAL_API_KEY}
@@ -79,10 +74,7 @@ def check_url_reputation(url: str) -> dict:
 
 
 def check_links_in_text(text: str) -> dict:
-    """
-    Extracts and checks all URLs found in a piece of text.
-    Returns overall safety status plus per-URL details.
-    """
+    
     urls = extract_urls(text)
 
     if not urls:

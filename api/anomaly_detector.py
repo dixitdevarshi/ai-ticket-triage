@@ -1,8 +1,8 @@
 import sys
 from pathlib import Path
+import os
 
-# Point Python at your other project so we can import its modules directly
-ANOMALY_PROJECT_PATH = r"D:\visual-anomaly-detection"
+ANOMALY_PROJECT_PATH = os.getenv("ANOMALY_PROJECT_PATH", r"D:\visual-anomaly-detection")
 sys.path.append(ANOMALY_PROJECT_PATH)
 
 import torch
@@ -23,7 +23,6 @@ TRANSFORM = transforms.Compose([
         std=[0.229, 0.224, 0.225]
     )
 ])
-
 
 def get_extractor():
     global _extractor
