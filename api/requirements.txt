@@ -16,3 +16,4 @@ torch
 torchvision
 numpy
 tqdm
+pytest
