@@ -29,6 +29,8 @@ Alongside the REST API, the project includes a small MCP (Model Context Protocol
 - `list_tickets_needing_review` — returns tickets currently flagged for human review
 - `correct_ticket` — submits a category/urgency correction for a flagged ticket
 
+![MCP Inspector](docs/screenshots/mcp-inspector.png)
+
 Both tools call the exact same `database.py` functions the REST API uses, MCP is an additional way to reach the existing review and correction flow, not a separate or parallel system. Run it with:
 
 ```bash
