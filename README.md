@@ -1,6 +1,6 @@
 # AI Ticket Triage System
 
-An automated support ticket triage pipeline combining n8n, the Claude API, and a self-trained computer vision model. Incoming emails are automatically classified, assessed for urgency, checked for security risks, and drafted a response, with a built-in human feedback loop and full multimodal support for product photos, screenshots, text PDFs, and scanned documents.
+An automated support ticket triage pipeline combining n8n, the Claude API, and a self-trained computer vision model. Incoming emails are automatically classified, assessed for urgency, checked for security risks, and drafted a response, with a built-in human feedback loop and full multi-modal support for product photos, screenshots, text PDFs, and scanned documents.
 
 ## Architecture
 
@@ -98,11 +98,13 @@ Note: classification disagreements in the evaluation above don't appear as error
 ![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
 
 **Also used:** Alembic, MCP (Model Context Protocol), DINOv2, PatchCore, PyMuPDF, Tesseract OCR, VirusTotal API
+
 ## Running it locally
 
 1. Set `ANTHROPIC_API_KEY`, `VIRUSTOTAL_API_KEY`, `SLACK_WEBHOOK_URL`, and `DATABASE_URL` in `api/.env`
-2. `docker compose up -d --build` — starts n8n, Prometheus, Grafana, PostgreSQL, and the FastAPI API, all containerized, tables and migrations applied automatically
-3. Import the n8n workflow and connect a Gmail account via OAuth
-4. Grafana at `localhost:3000`, Prometheus at `localhost:9090`, n8n at `localhost:5678`, API docs at `localhost:8000/docs`
+2. Create `api/.env.docker` with `ANOMALY_PROJECT_PATH=/anomaly-project` (used only by the Docker build; the [visual anomaly detection project](https://github.com/dixitdevarshi/visual-anomaly-detection) needs to be cloned as a sibling folder for the volume mount in `docker-compose.yml` to resolve)
+3. `docker compose up -d --build` — starts n8n, Prometheus, Grafana, PostgreSQL, and the FastAPI API, all containerized, tables and migrations applied automatically
+4. In n8n, rebuild the Gmail-triggered workflow described above and connect a Gmail account via OAuth (the workflow itself is not version-controlled, only the API and infrastructure are)
+5. Grafana at `localhost:3000`, Prometheus at `localhost:9090`, n8n at `localhost:5678`, API docs at `localhost:8000/docs`
 
 Tests: `cd api && pytest`
