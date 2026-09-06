@@ -22,6 +22,8 @@ A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, 
 
 **Confidence-based human review, with a feedback loop.** Every classification includes a self-reported confidence level. Low or medium confidence tickets are automatically flagged for human review and posted to Slack. Since a model can also be *confidently wrong*, a separate mechanism randomly spot-checks 10% of high-confidence tickets too, catching the cases the confidence signal alone would miss. A human corrects flagged tickets through a `POST /tickets/{id}/correct` endpoint, and future similar tickets are given that correction as a few-shot example, so the system's accuracy on recurring ambiguous patterns improves as it's used. In testing, correcting one mislabeled discount/pricing question was enough to make a differently-worded but similar question classify correctly and confidently on the next attempt.
 
+![Slack notifications](docs/screenshots/slack-full-review-demo.png)
+
 ## MCP server
 
 Alongside the REST API, the project includes a small MCP (Model Context Protocol) server (`api/mcp_server.py`) exposing the review queue as tools any MCP-compatible client can call directly, tested against real data using the official MCP Inspector.
@@ -39,8 +41,6 @@ mcp dev mcp_server.py
 ```
 
 This is a standalone, on-demand component rather than part of the always-running Docker stack, consistent with how MCP servers are typically launched by whatever client connects to them (Claude Desktop, the Inspector, etc), rather than run continuously as a service.
-
-![Slack notifications](docs/screenshots/slack-full-review-demo.png)
 
 ## Evaluation
 
