@@ -21,10 +21,19 @@ from classifier import (
 from anomaly_detector import run_anomaly_detection
 from pdf_handler import extract_text_from_pdf
 from link_checker import check_links_in_text
+from fastapi.middleware.cors import CORSMiddleware
+
 
 load_dotenv()
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(engine)
 
