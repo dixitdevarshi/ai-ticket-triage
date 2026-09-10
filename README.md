@@ -4,6 +4,35 @@ An automated support ticket triage pipeline combining n8n, the Claude API, and a
 
 ## Architecture
 
+```mermaid
+flowchart TD
+    A[Gmail Inbox] --> B[n8n Gmail Trigger]
+    B --> C{Attachment present?}
+    C -->|No| D[FastAPI Backend]
+    C -->|Yes| E[File Type Routing]
+    E --> F[Process Attachment]
+    F --> D
+    D --> G[Claude: Classify Topic]
+    D --> H[Claude: Classify Urgency]
+    G --> I{Urgency Level}
+    H --> I
+    I -->|High| J[Slack Alert]
+    I -->|Low / Medium| K[Logged]
+    D --> L{Confidence Check}
+    L -->|Low or medium confidence| M[Flagged for Review]
+    L -->|High confidence, 10% spot-check| M
+    M --> N[Slack Notification]
+    N --> O[Human Review]
+    O --> P[REST API]
+    O --> Q[MCP Server]
+    O --> R[React Dashboard]
+    P --> S[(PostgreSQL)]
+    Q --> S
+    R --> S
+    D --> S
+    S --> T[Alembic Migrations]
+```
+
 A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, and the workflow branches based on whether an attachment is present, both paths call a FastAPI backend that handles the actual intelligence. Claude classifies the ticket's topic and urgency independently, and if there's an attachment, a separate routing layer decides what kind of file it is and processes it before folding the result back into classification. The ticket is then routed by urgency: high-urgency tickets post an alert to Slack, everything else is logged. Separately, any ticket the model isn't confident about, or a small random sample of confident ones, gets flagged for human review, also via Slack. A human reviews and corrects flagged tickets either through the REST API, the MCP server, or a dedicated React dashboard. Everything is persisted in PostgreSQL through a SQLAlchemy model layer, with schema changes tracked as versioned Alembic migrations. The API itself, along with n8n, PostgreSQL, Prometheus, and Grafana, runs as a single Docker Compose stack.
 
 ![n8n workflow](docs/screenshots/n8n-workflow.png)
@@ -92,31 +121,33 @@ Note: classification disagreements in the evaluation above don't appear as error
 - The Gmail integration uses a dedicated test inbox, not a production mailbox.
 
 ## Project structure
+
+```
 ticket-triage/
 ├── api/
-│ ├── main.py FastAPI app, endpoints, routing logic
-│ ├── classifier.py Claude prompts and classification
-│ ├── database.py SQLAlchemy queries
-│ ├── db_models.py SQLAlchemy models, engine, session
-│ ├── anomaly_detector.py Bridge into the visual-anomaly-detection project
-│ ├── pdf_handler.py PyMuPDF extraction + Tesseract OCR fallback
-│ ├── link_checker.py URL extraction + VirusTotal checks
-│ ├── mcp_server.py MCP server exposing review/correction tools
-│ ├── run_evaluation.py Evaluation script against the labeled dataset
-│ ├── eval_dataset.json 50-ticket labeled test set
-│ ├── eval_results.json Latest evaluation run results
-│ ├── alembic/ Versioned database migrations
-│ ├── tests/ Pytest suite
-│ ├── Dockerfile
-│ └── requirements.txt
+│   ├── main.py                  FastAPI app, endpoints, routing logic
+│   ├── classifier.py            Claude prompts and classification
+│   ├── database.py              SQLAlchemy queries
+│   ├── db_models.py             SQLAlchemy models, engine, session
+│   ├── anomaly_detector.py      Bridge into the visual-anomaly-detection project
+│   ├── pdf_handler.py           PyMuPDF extraction + Tesseract OCR fallback
+│   ├── link_checker.py          URL extraction + VirusTotal checks
+│   ├── mcp_server.py            MCP server exposing review/correction tools
+│   ├── run_evaluation.py        Evaluation script against the labeled dataset
+│   ├── eval_dataset.json        50-ticket labeled test set
+│   ├── eval_results.json        Latest evaluation run results
+│   ├── alembic/                 Versioned database migrations
+│   ├── tests/                   Pytest suite
+│   ├── Dockerfile
+│   └── requirements.txt
 ├── frontend/
-│ └── src/
-│ └── App.jsx React dashboard (stats, review queue, history)
-├── docs/screenshots/ README images
-├── docker-compose.yml n8n, Postgres, Prometheus, Grafana, api
+│   └── src/
+│       └── App.jsx              React dashboard (stats, review queue, history)
+├── docs/screenshots/            README images
+├── docker-compose.yml           n8n, Postgres, Prometheus, Grafana, api
 ├── prometheus.yml
-└── .github/workflows/ci.yml Build + pytest on every push
-
+└── .github/workflows/ci.yml     Build + pytest on every push
+```
 
 ## API endpoints
 
