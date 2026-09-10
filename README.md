@@ -1,10 +1,10 @@
 # AI Ticket Triage System
 
-An automated support ticket triage pipeline combining n8n, the Claude API, and a self-trained computer vision model. Incoming emails are automatically classified, assessed for urgency, checked for security risks, and drafted a response, with a built-in human feedback loop and full multi-modal support for product photos, screenshots, text PDFs, and scanned documents.
+An automated support ticket triage pipeline combining n8n, the Claude API, and a self-trained computer vision model. Incoming emails are automatically classified, assessed for urgency, checked for security risks, and drafted a response, with a built-in human feedback loop, a React review dashboard, and full multimodal support for product photos, screenshots, text PDFs, and scanned documents.
 
 ## Architecture
 
-A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, and the workflow branches based on whether an attachment is present, both paths call a FastAPI backend that handles the actual intelligence. Claude classifies the ticket's topic and urgency independently, and if there's an attachment, a separate routing layer decides what kind of file it is and processes it before folding the result back into classification. The ticket is then routed by urgency: high-urgency tickets post an alert to Slack, everything else is logged. Separately, any ticket the model isn't confident about, or a small random sample of confident ones, gets flagged for human review, also via Slack. Everything is persisted in PostgreSQL through a SQLAlchemy model layer, with schema changes tracked as versioned Alembic migrations. The API itself, along with n8n, PostgreSQL, Prometheus, and Grafana, runs as a single Docker Compose stack.
+A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, and the workflow branches based on whether an attachment is present, both paths call a FastAPI backend that handles the actual intelligence. Claude classifies the ticket's topic and urgency independently, and if there's an attachment, a separate routing layer decides what kind of file it is and processes it before folding the result back into classification. The ticket is then routed by urgency: high-urgency tickets post an alert to Slack, everything else is logged. Separately, any ticket the model isn't confident about, or a small random sample of confident ones, gets flagged for human review, also via Slack. A human reviews and corrects flagged tickets either through the REST API, the MCP server, or a dedicated React dashboard. Everything is persisted in PostgreSQL through a SQLAlchemy model layer, with schema changes tracked as versioned Alembic migrations. The API itself, along with n8n, PostgreSQL, Prometheus, and Grafana, runs as a single Docker Compose stack.
 
 ![n8n workflow](docs/screenshots/n8n-workflow.png)
 
@@ -20,9 +20,19 @@ A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, 
 
 **Link safety.** Any URL in a ticket body is checked against VirusTotal before the ticket is processed. If a link comes back flagged as malicious or suspicious, the ticket skips normal AI classification entirely and is routed straight to manual security review, no automated reply is drafted for it.
 
-**Confidence-based human review, with a feedback loop.** Every classification includes a self-reported confidence level. Low or medium confidence tickets are automatically flagged for human review and posted to Slack. Since a model can also be *confidently wrong*, a separate mechanism randomly spot-checks 10% of high-confidence tickets too, catching the cases the confidence signal alone would miss. A human corrects flagged tickets through a `POST /tickets/{id}/correct` endpoint, and future similar tickets are given that correction as a few-shot example, so the system's accuracy on recurring ambiguous patterns improves as it's used. In testing, correcting one mislabeled discount/pricing question was enough to make a differently-worded but similar question classify correctly and confidently on the next attempt.
+**Confidence-based human review, with a feedback loop.** Every classification includes a self-reported confidence level. Low or medium confidence tickets are automatically flagged for human review and posted to Slack. Since a model can also be *confidently wrong*, a separate mechanism randomly spot-checks 10% of high-confidence tickets too, catching the cases the confidence signal alone would miss. A human corrects flagged tickets, and future similar tickets are given that correction as a few-shot example, so the system's accuracy on recurring ambiguous patterns improves as it's used. In testing, correcting one mislabeled discount/pricing question was enough to make a differently-worded but similar question classify correctly and confidently on the next attempt.
 
 ![Slack notifications](docs/screenshots/slack-full-review-demo.png)
+
+## React review dashboard
+
+A frontend for the review and correction flow, built with React, Vite, and Tailwind, so a human reviewer doesn't need to use `/docs` or curl to correct a flagged ticket. It shows live stats (total tickets, tickets needing review, high-urgency count, top category), a review queue with a detail panel for correcting category and urgency, and a searchable table of every ticket ever processed.
+
+![React dashboard](docs/screenshots/ReviewQueue.png)
+
+![React dashboard](docs/screenshots/AllTickets.png)
+
+The dashboard calls the same FastAPI endpoints the REST API and MCP server use, it's a third way to reach the same review and correction logic, not a separate system.
 
 ## MCP server
 
@@ -31,14 +41,14 @@ Alongside the REST API, the project includes a small MCP (Model Context Protocol
 - `list_tickets_needing_review` — returns tickets currently flagged for human review
 - `correct_ticket` — submits a category/urgency correction for a flagged ticket
 
-![MCP Inspector](docs/screenshots/mcp-inspector.png)
-
-Both tools call the exact same `database.py` functions the REST API uses, MCP is an additional way to reach the existing review and correction flow, not a separate or parallel system. Run it with:
+Both tools call the exact same `database.py` functions the REST API and dashboard use, MCP is an additional way to reach the existing review and correction flow, not a separate or parallel system. Run it with:
 
 ```bash
 cd api
 mcp dev mcp_server.py
 ```
+
+![MCP Inspector](docs/screenshots/mcp-inspector.png)
 
 This is a standalone, on-demand component rather than part of the always-running Docker stack, consistent with how MCP servers are typically launched by whatever client connects to them (Claude Desktop, the Inspector, etc), rather than run continuously as a service.
 
@@ -71,8 +81,6 @@ Note: classification disagreements in the evaluation above don't appear as error
 
 **Scanned document OCR:** a photographed (not scanned) product disposal notice was correctly OCR'd end to end, including chemical symbols and regulatory directive numbers, despite real-world lighting and a slight angle.
 
-**Live triage in Slack:** the screenshot above shows four real, distinct outcomes from actual test emails processed through the live pipeline: a pure urgency alert, a routine ticket logged normally, a ticket flagged for review due to low confidence, and a ticket that triggered both an urgency alert and a review flag simultaneously, demonstrating that urgency and confidence-based review are genuinely independent mechanisms.
-
 ## Known limitations
 
 - The anomaly detection model only recognizes the 15 MVTec AD product categories it was trained on. A photo outside these categories is correctly flagged as unmatched rather than scored, no false confidence.
@@ -83,10 +91,50 @@ Note: classification disagreements in the evaluation above don't appear as error
 - The human-correction feedback loop currently improves future classifications through few-shot examples; it does not detect or suppress recurring flagging of the same pattern, a genuinely common ambiguous ticket type will keep getting flagged on each individual occurrence, even after being corrected once, until enough corrected examples accumulate to shift confidence upward.
 - The Gmail integration uses a dedicated test inbox, not a production mailbox.
 
+## Project structure
+ticket-triage/
+├── api/
+│ ├── main.py FastAPI app, endpoints, routing logic
+│ ├── classifier.py Claude prompts and classification
+│ ├── database.py SQLAlchemy queries
+│ ├── db_models.py SQLAlchemy models, engine, session
+│ ├── anomaly_detector.py Bridge into the visual-anomaly-detection project
+│ ├── pdf_handler.py PyMuPDF extraction + Tesseract OCR fallback
+│ ├── link_checker.py URL extraction + VirusTotal checks
+│ ├── mcp_server.py MCP server exposing review/correction tools
+│ ├── run_evaluation.py Evaluation script against the labeled dataset
+│ ├── eval_dataset.json 50-ticket labeled test set
+│ ├── eval_results.json Latest evaluation run results
+│ ├── alembic/ Versioned database migrations
+│ ├── tests/ Pytest suite
+│ ├── Dockerfile
+│ └── requirements.txt
+├── frontend/
+│ └── src/
+│ └── App.jsx React dashboard (stats, review queue, history)
+├── docs/screenshots/ README images
+├── docker-compose.yml n8n, Postgres, Prometheus, Grafana, api
+├── prometheus.yml
+└── .github/workflows/ci.yml Build + pytest on every push
+
+
+## API endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/health` | Health check |
+| POST | `/tickets` | Create and classify a ticket |
+| GET | `/tickets` | List all tickets |
+| GET | `/tickets/needs-review` | List tickets flagged for review |
+| POST | `/tickets/{id}/correct` | Submit a human correction |
+| GET | `/metrics` | Prometheus metrics |
+
 ## Tech stack
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)
 ![Anthropic](https://img.shields.io/badge/Claude_API-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
@@ -107,6 +155,7 @@ Note: classification disagreements in the evaluation above don't appear as error
 2. Create `api/.env.docker` with `ANOMALY_PROJECT_PATH=/anomaly-project` (used only by the Docker build; the [visual anomaly detection project](https://github.com/dixitdevarshi/visual-anomaly-detection) needs to be cloned as a sibling folder for the volume mount in `docker-compose.yml` to resolve)
 3. `docker compose up -d --build` — starts n8n, Prometheus, Grafana, PostgreSQL, and the FastAPI API, all containerized, tables and migrations applied automatically
 4. In n8n, rebuild the Gmail-triggered workflow described above and connect a Gmail account via OAuth (the workflow itself is not version-controlled, only the API and infrastructure are)
-5. Grafana at `localhost:3000`, Prometheus at `localhost:9090`, n8n at `localhost:5678`, API docs at `localhost:8000/docs`
+5. `cd frontend && npm install && npm run dev` — starts the React dashboard at `localhost:5173`
+6. Grafana at `localhost:3000`, Prometheus at `localhost:9090`, n8n at `localhost:5678`, API docs at `localhost:8000/docs`
 
 Tests: `cd api && pytest`
