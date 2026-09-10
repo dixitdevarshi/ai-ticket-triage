@@ -8,14 +8,13 @@ An automated support ticket triage pipeline combining n8n, the Claude API, and a
 flowchart TD
     A[Gmail Inbox] --> B[n8n Gmail Trigger]
     B --> C{Attachment present?}
-    C -->|No| D[FastAPI Backend]
+    C -->|No| D0[FastAPI: link check]
     C -->|Yes| E[File Type Routing]
     E --> F[Process Attachment]
-    F --> D
-    D --> G[Claude: Classify Topic]
-    D --> H[Claude: Classify Urgency]
-    G --> I{Urgency Level}
-    H --> I
+    F --> D0
+    D0 -->|Link flagged| SR[Security Review, skip classification]
+    D0 -->|Clean| D[Claude: classify topic + urgency]
+    D --> I{Urgency Level}
     I -->|High| J[Slack Alert]
     I -->|Low / Medium| K[Logged]
     D --> L{Confidence Check}
@@ -33,7 +32,7 @@ flowchart TD
     S --> T[Alembic Migrations]
 ```
 
-A real email lands in a monitored Gmail inbox. n8n's Gmail Trigger picks it up, and the workflow branches based on whether an attachment is present, both paths call a FastAPI backend that handles the actual intelligence. Claude classifies the ticket's topic and urgency independently, and if there's an attachment, a separate routing layer decides what kind of file it is and processes it before folding the result back into classification. The ticket is then routed by urgency: high-urgency tickets post an alert to Slack, everything else is logged. Separately, any ticket the model isn't confident about, or a small random sample of confident ones, gets flagged for human review, also via Slack. A human reviews and corrects flagged tickets either through the REST API, the MCP server, or a dedicated React dashboard. Everything is persisted in PostgreSQL through a SQLAlchemy model layer, with schema changes tracked as versioned Alembic migrations. The API itself, along with n8n, PostgreSQL, Prometheus, and Grafana, runs as a single Docker Compose stack.
+The system separates topic and urgency classification because they're independent signals, a billing question can be low urgency while a billing incident affecting many customers is high urgency, something a single combined field can't represent. Attachments are routed before classification rather than after, so the extracted content (a defect score, an OCR'd document, a described screenshot) feeds into the same classification pass instead of triggering a second one. Review flagging combines two signals rather than one: low or medium self-reported confidence, plus a random 10% spot-check of high-confidence tickets, since a model can be confidently wrong in ways its own confidence score won't catch. Everything a human corrects, whether through the REST API, MCP server, or the dashboard, writes to the same underlying tables, so there's one source of truth regardless of which interface was used.
 
 ![n8n workflow](docs/screenshots/n8n-workflow.png)
 
