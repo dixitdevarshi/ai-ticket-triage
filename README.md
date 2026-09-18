@@ -80,6 +80,20 @@ mcp dev mcp_server.py
 
 This is a standalone, on-demand component rather than part of the always-running Docker stack, consistent with how MCP servers are typically launched by whatever client connects to them (Claude Desktop, the Inspector, etc), rather than run continuously as a service.
 
+## Kubernetes deployment
+
+Kubernetes manifests (`k8s/`) reproduce the Docker Compose stack as Deployments and Services, run locally with Minikube to demonstrate container orchestration, restart-on-crash reliability, and how the same Docker image used in Compose is reused unchanged in Kubernetes, no rebuild needed.
+
+```bash
+minikube start --driver=docker
+minikube image build -t ticket-triage-api ./api
+kubectl create secret generic api-secrets --from-literal=anthropic-api-key=... --from-literal=virustotal-api-key=... --from-literal=slack-webhook-url=...
+kubectl apply -f k8s/
+minikube service api
+```
+
+This is a local learning/demo setup, not a production cluster; Prometheus's scrape config isn't yet wired in via a ConfigMap, so monitoring inside the cluster is a known gap relative to the Compose setup.
+
 ## Evaluation
 
 Classification was measured against a labeled test set of 50 tickets, run through the live API, not a mock. Category and urgency are scored independently, since they're independent fields.
